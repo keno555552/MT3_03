@@ -96,7 +96,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawSphere({ controlPoints[1] ,0.01f}, cameraWorldViewProjectionMatrix, cameraViewportMatrix, BLACK);
 		DrawSphere({ controlPoints[2] ,0.01f}, cameraWorldViewProjectionMatrix, cameraViewportMatrix, BLUE);
 
-
 		/// ImGui
 		ImGui::Begin("Control Penol");
 		ImGui::SliderFloat3("controlPoints[0]", &controlPoints[0].x, -5.0f, 5.0f);

@@ -26,11 +26,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	/// 初期化
 	///=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-	Vector3 controlPoints[3] = {
-		{-0.00f, 0.58f, 1.00f},
-		{ 1.76f, 1.00f,-0.30f},
-		{ 0.94f,-0.70f, 2.30f}
+	Vector3 translates[3] = {
+		{0.2f,1.0f,0.0f},
+		{0.4f,0.0f,0.0f},
+		{0.3f,0.0f,0.0f}
 	};
+
+	Vector3 rotates[3] = {
+		{0.0f,0.0f,-6.8f},
+		{0.0f,0.0f,-1.4f},
+		{0.0f,0.0f,0.0f}
+	};
+
+	Vector3 scales[3] = {
+		{1.0f,1.0f,1.0f},
+		{1.0f,1.0f,1.0f},
+		{1.0f,1.0f,1.0f}
+	};
+
+	Sphere spheres[3]{};
+	Matrix4x4 L[3]{};
 
 
 	///カメラ初期化
@@ -78,10 +93,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		cameraWorldViewProjectionMatrix = cameraViewMatrix * cameraProjectionMatrix;
 		cameraViewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
-		/// MaxMin制限
-		//if (aabb1.max.x < aabb1.min.x) { aabb1.max.x = aabb1.min.x + 0.01f; }
-		//if (aabb1.max.y < aabb1.min.y) { aabb1.max.y = aabb1.min.y + 0.01f; }
-		//if (aabb1.max.z < aabb1.min.z) { aabb1.max.z = aabb1.min.z + 0.01f; }
+		/// Matrix計算
+		for (int i = 0; i < 3;i++) {
+			L[i] = MakeAffineMatrix(scales[i], rotates[i], translates[i]);
+		}
+
+		spheres[0] = { MakeTranslateVector3(L[0]),0.1f };
+		spheres[1] = { MakeTranslateVector3( L[1] * L[0]),0.1f};
+		spheres[2] = { MakeTranslateVector3(L[2] * L[1] *L[0]),0.1f};
+
+
 
 		///=========================================================================================================================================================================================
 		/// 描画処理
@@ -91,16 +112,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawGrid(cameraWorldViewProjectionMatrix, cameraViewportMatrix);
 
 		/// 判定と描画
-		DrawBezier(controlPoints[0], controlPoints[1], controlPoints[2], 20, cameraWorldViewProjectionMatrix, cameraViewportMatrix, BLUE);
-		DrawSphere({ controlPoints[0] ,0.01f}, cameraWorldViewProjectionMatrix, cameraViewportMatrix, RED);
-		DrawSphere({ controlPoints[1] ,0.01f}, cameraWorldViewProjectionMatrix, cameraViewportMatrix, BLACK);
-		DrawSphere({ controlPoints[2] ,0.01f}, cameraWorldViewProjectionMatrix, cameraViewportMatrix, BLUE);
+		DrawSphere(spheres[0], cameraWorldViewProjectionMatrix, cameraViewportMatrix, RED);
+		Draw3DLine({ spheres[0].center, spheres[1].center - spheres[0].center }, cameraWorldViewProjectionMatrix, cameraViewportMatrix, WHITE);
+		DrawSphere(spheres[1], cameraWorldViewProjectionMatrix, cameraViewportMatrix, GREEN);
+		Draw3DLine({ spheres[1].center, spheres[2].center - spheres[1].center }, cameraWorldViewProjectionMatrix, cameraViewportMatrix, WHITE);
+		DrawSphere(spheres[2], cameraWorldViewProjectionMatrix, cameraViewportMatrix, BLUE);
 
 		/// ImGui
 		ImGui::Begin("Control Penol");
-		ImGui::SliderFloat3("controlPoints[0]", &controlPoints[0].x, -5.0f, 5.0f);
-		ImGui::SliderFloat3("controlPoints[1]", &controlPoints[1].x, -5.0f, 5.0f);
-		ImGui::SliderFloat3("controlPoints[2]", &controlPoints[2].x, -5.0f, 5.0f);
+		ImGui::SliderFloat3("translates[0]", &translates[0].x, -5.0f, 5.0f);
+		ImGui::SliderFloat3("rotate[0]", &rotates[0].x, -5.0f, 5.0f);
+		ImGui::SliderFloat3("scale[0]", &scales[0].x, -5.0f, 5.0f);
+		ImGui::SliderFloat3("translates[1]", &translates[1].x, -5.0f, 5.0f);
+		ImGui::SliderFloat3("rotate[1]", &rotates[1].x, -5.0f, 5.0f);
+		ImGui::SliderFloat3("scale[1]", &scales[1].x, -5.0f, 5.0f);
+		ImGui::SliderFloat3("translates[2]", &translates[2].x, -5.0f, 5.0f);
+		ImGui::SliderFloat3("rotate[2]", &rotates[2].x, -5.0f, 5.0f);
+		ImGui::SliderFloat3("scale[2]", &scales[2].x, -5.0f, 5.0f);
 		ImGui::End();
 
 
